@@ -23,6 +23,7 @@ public:
 	bool getActivated();
 	Bonus();
 	virtual void Activate(Game& game, Paddle& paddle, Ball& ball) {};
+	virtual void ActivateNew(){};
 	virtual void BonusDeactivate(Game& game, Paddle& paddle) {};
 	void bonusCollidesPaddle(Paddle& paddle);
 	void bonusMoving(float elapsed_time);
@@ -40,9 +41,11 @@ class Extrascores : public Bonus
 {
 private:
 	int32_t extrascores;
+	//int32_t* scores;
 public:
-	Extrascores(Vector2f position);
 
+	Extrascores(Vector2f position);
+	//void ActivateNew() override;
 	 void Activate(Game& game, Paddle& paddle, Ball& ball) override;
 	  ~Extrascores() override = default;
 };
@@ -51,8 +54,10 @@ class ReducePaddle : public Bonus
 {
 private:
 	sf::Vector2f NewSize;
+	//Paddle* paddle;
 public:
 	ReducePaddle(Vector2f position);
+	//void ActivateNew() override;
 	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
 	void BonusDeactivate(Game& game, Paddle& paddle) override;
 	 ~ReducePaddle() override = default;
@@ -121,5 +126,5 @@ public:
 	 ~BottomAsPaddle() override = default;
 };
 
-void createbonus(Vector2f position, std::vector<Bonus*>& BonusList);
+void createbonus(Vector2f position, std::vector<Bonus*>& BonusList/*, int32_t* scores, Paddle* paddle*/);
 #endif

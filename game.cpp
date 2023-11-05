@@ -61,7 +61,7 @@ void Game::addLevel()
 	this->level++;
 }
 
-void TextSetter(sf::Text& text,const sf::Font& font, const std::string& stroke, const sf::Vector2f& position)
+void Game::TextSetter(sf::Text& text,const sf::Font& font, const std::string& stroke, const sf::Vector2f& position)
 {
 	text.setFont(font);
 	text.setCharacterSize(20);
@@ -70,17 +70,17 @@ void TextSetter(sf::Text& text,const sf::Font& font, const std::string& stroke, 
 	text.setPosition(position);
 }
 
-void UpdatePanel(Game& game)
+void Game::UpdatePanel()
 {
 
 	
 
 	std::string my_scores_panel = "Scores: ";
-	std::string my_scores_amount = std::to_string(game.getScores());
+	std::string my_scores_amount = std::to_string(getScores());
 	std::string my_lifes_panel = "Lifes: ";
-	std::string my_lifes_amount = std::to_string(game.getLifes());
+	std::string my_lifes_amount = std::to_string(getLifes());
 	std::string my_level_panel = "Level: ";
-	std::string my_level_num = std::to_string(game.getLevelNum());
+	std::string my_level_num = std::to_string(getLevelNum());
 	Vector2f v1 = Vector2f(60, 650);
 	Vector2f v2 = Vector2f(130, 650);
 	Vector2f v3 = Vector2f(60, 725);
@@ -96,7 +96,7 @@ void UpdatePanel(Game& game)
 }
 
 
-void DrawText(RenderWindow& window, Game& game)
+void Game::DrawText(RenderWindow& window)
 {
 	window.draw(level_header);
 	window.draw(level_num);
@@ -107,7 +107,7 @@ void DrawText(RenderWindow& window, Game& game)
 }
 
 
-void CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window)
+void Game::CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window)
 {
 	while (window.pollEvent(event))
 		if (event.type == sf::Event::Closed) window.close();
@@ -118,7 +118,7 @@ void BonusProcess(std::vector<Bonus*>& BonusList, Game& game, Paddle& paddle, Ba
 	{
 		if (bonus->getActivated())
 		{
-
+			//bonus->ActivateNew();
 			bonus->Activate(game,paddle, ball);
 			bonus->setActivated(false);
 			//запомнить указатель на этот бонус, удалить его из массива(errase) удалить запомненный указатель(delete) виртуальный диструктр внутри бонуса 
@@ -168,25 +168,25 @@ void BonusProcess(std::vector<Bonus*>& BonusList, Game& game, Paddle& paddle, Ba
 	}
 }
 
-void UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
-	std::vector<Brick>& BricksList, std::vector<Bonus*>& BonusList, Game& game)
+void Game::UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
+	std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList)
 {
 	float elapsed_time = clock.getElapsedTime().asSeconds();
 	clock.restart();
 	paddle.updateDirection();
 	ball.updateBall(paddle, elapsed_time,
-		paddle.updatePaddle(elapsed_time), BricksList, BonusList, game);
-	UpdateBonusList(BonusList, elapsed_time, paddle, game, ball);
-	BonusProcess(BonusList, game, paddle, ball);
+		paddle.updatePaddle(elapsed_time), BricksList, BonusList, *this);
+	UpdateBonusList(BonusList, elapsed_time, paddle, *this, ball);
+	BonusProcess(BonusList, *this, paddle, ball);
 }
-void DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick>& BricksList, std::vector<Bonus*>& BonusList,Game& game)
+void Game::DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList)
 {
 	window.clear();
 	window.draw(paddle);
 	window.draw(ball);
 	DrawBricks(window, BricksList);
-	DrawText(window, game);
-	if (game.getBAP())
+	DrawText(window);
+	if (getBAP())
 	{
 		sf::RectangleShape bottom_line;
 		bottom_line.setSize(Vector2f(WINDOW_WIDTH, 4.f));
@@ -198,14 +198,14 @@ void DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector
 	window.display();
 }
 
-bool checkCompleteness(std::vector<Brick>& BricksList, Game& game)
+bool Game::checkCompleteness(std::vector<Brick*>& BricksList)
 {
 	bool level_complete = true;
-	for (Brick& brick : BricksList)
-		if (brick.getStatus() && !(brick.getHP() == INT32_MAX)) 
+	for (Brick* brick : BricksList)
+		if (brick->getStatus() && !(brick->getHP() == INT32_MAX)) 
 			level_complete = false;
 	
-	if (level_complete) game.addLevel();
+	if (level_complete) addLevel();
 	return level_complete;
 }
 
@@ -217,7 +217,7 @@ bool checkDefeat(int32_t lifes)
 	else return false;
 }
 
-void LoadTextures()
+void Game::LoadTextures()
 {
 	if (!BALL_TEXTURE.loadFromFile("images/ball_tmp-transformed.png")
 		|| !PADDLE_TEXTURE.loadFromFile("images/paddle_texture.png"))
@@ -248,7 +248,7 @@ void Game::goNextLevel()
 	this->level++;
 }
 
-void LoadFont(Game& game)
+void Game::LoadFont()
 {
 	if (!font.loadFromFile("fonts/ARIAL.ttf"))
 	{
@@ -257,30 +257,32 @@ void LoadFont(Game& game)
 	}
 }
 
+void Game::gameloop(RenderWindow& window,Clock clock,Paddle paddle, Ball ball, std::vector<Brick*> BricksList, std::vector<Bonus*> BonusList) {
+	while (window.isOpen())
+	{
+		sf::Event event;
+		UpdatePanel();
+	
+		CheckForWindowClosed(event, window);
+		UpdateScene(clock, paddle, ball, BricksList, BonusList);
+		DrawScene(window, ball, paddle, BricksList, BonusList);
+		if (checkCompleteness(BricksList)) { ROWS++; BricksList = InitBricksList(); }
+		if (checkDefeat(getLifes())) window.close();
+	}
+}
 
-
-void initGame(Game& game)
+void Game::initGame()
 {
 
 	
 	RenderWindow window(sf::VideoMode(WINDOW_WIDTH , WINDOW_HEIGHT+300.f), "Arcanoid");
 	LoadTextures();
-	LoadFont(game);
+	LoadFont();
 	Paddle paddle = Paddle(PADDLE_TEXTURE);
 	Ball ball = Ball(BALL_TEXTURE);
 	Clock clock;
-	std::vector<Brick> BricksList = InitBricksList();
 	std::vector<Bonus*> BonusList;
-	UpdatePanel(game);
-	while (window.isOpen())
-	{
-		sf::Event event;
-		UpdatePanel(game);
-		DrawText(window, game);
-		CheckForWindowClosed(event, window);
-		UpdateScene(clock, paddle, ball, BricksList, BonusList, game);
-		DrawScene(window, ball, paddle, BricksList, BonusList,game);
-		if (checkCompleteness(BricksList,game)) { ROWS++; BricksList = InitBricksList(); }
-		if (checkDefeat(game.getLifes())) window.close();
-	}
+	std::vector<Brick*> BricksList = InitBricksList();
+	//UpdatePanel(game);
+	gameloop(window,clock,paddle,ball, BricksList, BonusList);
 }

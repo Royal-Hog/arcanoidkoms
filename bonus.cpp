@@ -77,30 +77,41 @@ void DrawBonuses(RenderWindow& window, std::vector<Bonus*>& BonusList)
 }
 
 
-Extrascores::Extrascores(Vector2f position)
-{
+Extrascores::Extrascores(Vector2f position) {
 	this->extrascores = 50;
 	BONUS_TEXTURE_1.loadFromFile("images/bonus_extrascores.png");
-
+	//this->scores = scores;
 	this->setPosition(position);
 	this->setTexture(BONUS_TEXTURE_1);
-	
-}
 
-void Extrascores::Activate(Game& game, Paddle& paddle, Ball& ball)
-{
-		game.addScores(this->extrascores);	
 }
+/*void Extrascores::ActivateNew() {
+	*scores += extrascores;
+}
+*/
+
 
 ReducePaddle::ReducePaddle(Vector2f position)
 {
 	this->NewSize = sf::Vector2f(0.5f, 1.f);
-
+//	this->paddle = paddle;
 	BONUS_TEXTURE_2.loadFromFile("images/bonus_redutio.png");
 
 	this->setPosition(position);
 	this->setTexture(BONUS_TEXTURE_2);
 }
+
+
+void Extrascores::Activate(Game& game, Paddle& paddle, Ball& ball)
+{
+	game.addScores(this->extrascores);
+}
+
+/*void ReducePaddle::ActivateNew()
+{
+	paddle->setScale(this->NewSize);
+
+}*/
 void ReducePaddle::Activate(Game& game, Paddle& paddle, Ball& ball)
 {
 		paddle.setScale(this->NewSize);
@@ -223,9 +234,9 @@ void BottomAsPaddle::BonusDeactivate(Game& game, Paddle& paddle)
 
 
 
-void createbonus(Vector2f position, std::vector<Bonus*>& BonusList) {
-	srand(time(0));
-	int32_t bonus_type = rand() % 8 + 1;
+void createbonus(Vector2f position, std::vector<Bonus*>& BonusList/*, int32_t* scores, Paddle* paddle*/) {
+	//srand(time(0));
+	int32_t bonus_type = 2;// rand() % 8 + 1;
 	switch (bonus_type) {
 	case 1: {
 		BonusList.push_back(new Extrascores(position));

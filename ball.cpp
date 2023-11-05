@@ -16,7 +16,7 @@ float Ball::getAngle()
 Ball::Ball(Texture& texture)
 {
 	this->setPosition(BALL_INIT_POS);
-	this->setAngle(PI / 1.7);
+	this->setAngle(START_ANGLE);
 	this->setStatus(true);
 	this->setTexture(texture);
 	this->setScale(BALL_SCALE);
@@ -33,7 +33,8 @@ void Ball::checkWallCollision(Vector2f& new_offset_vector, float micro_step, Gam
 		this->setAngle(PI - this->getAngle());
 		new_offset_vector = PolarToDSC(micro_step, this->getAngle());
 	}
-	if (game.getBAP() && this->getPosition().y >= 575)
+
+	if (game.getBAP() && this->getPosition().y >= MAP_BOTTOM)
 	{
 		
 		if (atan(new_offset_vector.y / new_offset_vector.x) < 0) {
@@ -72,26 +73,25 @@ void Ball::checkPaddleCollision(FloatRect& paddle_bounds, Vector2f paddle_offset
 }
 
 
-void Ball::checkBricksCollision(vector<Brick>& BricksList, Vector2f new_offset_vector,
+void Ball::checkBricksCollision(vector<Brick*>& BricksList, Vector2f new_offset_vector,
 	float micro_step, std::vector<Bonus*>& BonusList, Game& game)
 {
 	FloatRect ball_bounds = this->getGlobalBounds();
 	FloatRect next_ball_bounds = MoveRect(ball_bounds, PolarToDSC(micro_step, this->getAngle()));
-	for (Brick& brick : BricksList)
+	for (Brick* brick : BricksList)
 	{
 		
 
-		if (next_ball_bounds.intersects(brick.getGlobalBounds()) && brick.getStatus())
+		if (next_ball_bounds.intersects(brick->getGlobalBounds()) && brick->getStatus())
 		{
-			if (!(brick.getHP() == INT32_MAX))
+			if (!(brick->getHP() == INT32_MAX))
 			{
 				srand(time(0));
-				brick.decreaseHP();
-				game.addScores(1);
-				if (brick.getHP() == 0)
+				brick->OnHit(&game.scores);
+				if (brick->getHP() == 0)
 				{
-					brick.changeStatus();
-					if (rand() % 2 == 0)
+					brick->changeStatus();
+					if (rand() % 1 == 0)
 					{
 						createbonus(this->getPosition(), BonusList);
 					}
@@ -99,7 +99,7 @@ void Ball::checkBricksCollision(vector<Brick>& BricksList, Vector2f new_offset_v
 						
 					
 				}
-				else brick.updateBrick();
+				else brick->updateBrick();
 			}
 			
 			if (!game.getAP())
@@ -110,7 +110,7 @@ void Ball::checkBricksCollision(vector<Brick>& BricksList, Vector2f new_offset_v
 			}
 			else
 			{
-				if (brick.getHP() == INT32_MAX) {
+				if (brick->getHP() == INT32_MAX) {
 					if (atan(new_offset_vector.y / new_offset_vector.x) < 0) this->setAngle(2 * PI - atan(new_offset_vector.y / new_offset_vector.x));
 					else this->setAngle(PI - atan(new_offset_vector.y / new_offset_vector.x));
 				}
@@ -121,14 +121,14 @@ void Ball::checkBricksCollision(vector<Brick>& BricksList, Vector2f new_offset_v
 }
 void Ball::checkBallOut(Game& game)
 {
-	if (this->getPosition().y >= 600 && !(game.getBAP()))
+	if (this->getPosition().y >= MAP_END)
 	{
 		game.removeLife();
 		this->setPosition(BALL_INIT_POS);
-		this->setAngle(PI / 1.7);
+		this->setAngle(START_ANGLE);
 	}
 }
-void Ball::updateBall(Paddle& paddle, float elapsed_time, Vector2f paddle_offset, std::vector<Brick>& BricksList, std::vector<Bonus*>& BonusList, Game& game)
+void Ball::updateBall(Paddle& paddle, float elapsed_time, Vector2f paddle_offset, std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList, Game& game)
 {
 	FloatRect ball_bounds = this->getGlobalBounds();
 	FloatRect paddle_bounds = paddle.getGlobalBounds();

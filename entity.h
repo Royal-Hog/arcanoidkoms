@@ -2,6 +2,7 @@
 #define ENTITY_H
 #include <SFML/Graphics.hpp>
 using namespace sf;
+#define PI 3.14159265358979323846
 static Texture BALL_TEXTURE;
 static Texture PADDLE_TEXTURE;
 static Texture BRICK_TEXTURE_1;
@@ -28,6 +29,9 @@ extern float PADDLE_SPEED;
 extern Vector2f BALL_INIT_POS;
 extern Vector2f BALL_SCALE;
 extern float BALL_SPEED;
+extern float START_ANGLE;
+extern float MAP_END;
+extern float MAP_BOTTOM;
 
 extern Vector2f FIRST_BRICK_POS;
 extern Vector2f BRICK_SIZE;

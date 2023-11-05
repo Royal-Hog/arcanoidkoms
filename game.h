@@ -5,7 +5,6 @@
 #include "ball.h"
 
 #include <vector>
-class Ball;
 class Bonus;
 const int32_t WINDOW_HEIGHT = 600;
 const int32_t SCORES_FOR_BLOCK = 50;
@@ -18,27 +17,19 @@ static sf::Text level_num;
 static sf::Text lifes_header;
 static sf::Text lifes_amount;
 
-void CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window);
-
-
-
-
-void DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick>& BricksList, std::vector<Bonus*>& BonusList, Game & game);
-
-bool checkCompleteness(std::vector<Brick>& BricksList);
 
 
 class Game
 {
 private:
     int32_t level;
-    int32_t scores;
+    
     int32_t lifes;
     bool allpervading;
     bool bottom_as_paddle;
 public:
     static Game* Play;
-
+    int32_t scores;
     Game();
      ~Game() = default;
     void addScores(int amount);
@@ -54,14 +45,20 @@ public:
     int32_t getLifes();
     int32_t getLevelNum();
     void addLevel();
+    void initGame();
+    void CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window);
+    void DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList);
+    bool checkCompleteness(std::vector<Brick*>& BricksList);
+    void UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
+        std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList);
+    void DrawText(RenderWindow& window);
+    void UpdatePanel();
+    void TextSetter(sf::Text& text, const sf::Font& font, const std::string& stroke, const sf::Vector2f& position);
+    void LoadFont();
+    void LoadTextures();
+    void gameloop(RenderWindow& window, Clock clock, Paddle paddle, Ball ball, std::vector<Brick*> BricksList, std::vector<Bonus*> BonusList);
 };
-void UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
-    std::vector<Brick>& BricksList, std::vector<Bonus*>& BonusList, Game& game);
-void initGame(Game& game);
-void DrawText(RenderWindow& window, Game& game);
-void UpdatePanel(Game& game);
-void TextSetter(sf::Text& text, const sf::Font& font, const std::string& stroke, const sf::Vector2f& position);
-void LoadFont(Game& game);
-void LoadTextures();
+
+
 
 #endif

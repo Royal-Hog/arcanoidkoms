@@ -7,6 +7,11 @@ float PADDLE_SPEED = 288.0f;
 Vector2f BALL_INIT_POS = Vector2f(400, 300);
 Vector2f BALL_SCALE = Vector2f(0.1f, 0.1f);
 float BALL_SPEED = 350.0f;
+float START_ANGLE = PI / 1.7;
+float MAP_END = 600;
+float MAP_BOTTOM = 575;
+
+
 
 Vector2f FIRST_BRICK_POS = Vector2f(0, 100);
 Vector2f BRICK_SIZE = Vector2f(75.f, 25.f);

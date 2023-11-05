@@ -1,5 +1,3 @@
-
-
 #ifndef PADDLE_H
 #define PADDLE_H
 #include "entity.h"
@@ -7,9 +5,10 @@
 
 using namespace sf;
 
-enum struct Direct { NONEDIR, UP, DOWN, LEFT, RIGHT };
+enum struct Direct { NONEDIR, LEFT, RIGHT };
 extern Vector2f ZERO_VECTOR;
 class Paddle : public Entity
+
 {
 public:
 	void setDirection(Direct direction);
