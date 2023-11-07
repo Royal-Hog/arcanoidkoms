@@ -14,6 +14,7 @@ public:
 	void setDirection(Direct direction);
 	Direct getDirection();
 	Paddle(Texture& texture);
+	Paddle();
 	 ~Paddle() override = default;
 	void updateDirection();
 	Vector2f updatePaddle(float elapsed_time);

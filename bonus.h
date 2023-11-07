@@ -3,7 +3,6 @@
 #include "entity.h"
 #include <random>
 class Game;
-class Ball;
 class Paddle;
 
 
@@ -13,7 +12,7 @@ class Bonus : public Entity
 {
 private:
 	
-	
+
 	bool activated;
 public:
     Clock bonus_clock;
@@ -22,31 +21,28 @@ public:
 	void setActivated(bool activated);
 	bool getActivated();
 	Bonus();
-	virtual void Activate(Game& game, Paddle& paddle, Ball& ball) {};
-	virtual void ActivateNew(){};
-	virtual void BonusDeactivate(Game& game, Paddle& paddle) {};
+	virtual void Activate(Game& game) {};
+	virtual void BonusDeactivate(Game& game) {};
 	void bonusCollidesPaddle(Paddle& paddle);
 	void bonusMoving(float elapsed_time);
 	virtual ~Bonus() = default;
-	void updateByTime(Game& game, Ball& ball, Paddle& paddle, std::vector<Bonus*>& BonusList);
+	void updateByTime(Game& game);
 };
 
-void UpdateBonusList(std::vector<Bonus*>& BonusList, float elapsed_time,
-	Paddle& paddle, Game& game, Ball& ball);
+void UpdateBonusList(float elapsed_time, Game& game);
 
-void DrawBonuses(RenderWindow& window, std::vector<Bonus*>& BonusList);
+
 
 
 class Extrascores : public Bonus
 {
 private:
 	int32_t extrascores;
-	//int32_t* scores;
+
 public:
 
 	Extrascores(Vector2f position);
-	//void ActivateNew() override;
-	 void Activate(Game& game, Paddle& paddle, Ball& ball) override;
+	 void Activate(Game& game) override;
 	  ~Extrascores() override = default;
 };
 
@@ -54,12 +50,10 @@ class ReducePaddle : public Bonus
 {
 private:
 	sf::Vector2f NewSize;
-	//Paddle* paddle;
 public:
 	ReducePaddle(Vector2f position);
-	//void ActivateNew() override;
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
-	void BonusDeactivate(Game& game, Paddle& paddle) override;
+	void Activate(Game& game) override;
+	void BonusDeactivate(Game& game) override;
 	 ~ReducePaddle() override = default;
 };
 
@@ -67,7 +61,7 @@ class Extralife : public Bonus
 {
 public:
 	Extralife(Vector2f position);
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
+	void Activate(Game& game) override;
 	~Extralife() override = default;
 private:
 };
@@ -78,8 +72,8 @@ private:
 	sf::Vector2f NewSize = sf::Vector2f(2.f, 1.f);
 public:
 	IncreasePaddle(Vector2f position);
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
-	void BonusDeactivate(Game& game, Paddle& paddle) override;
+	void Activate(Game& game) override;
+	void BonusDeactivate(Game& game) override;
 	 ~IncreasePaddle() override = default;
 };
 
@@ -89,8 +83,8 @@ class Allpervading : public Bonus
 private:
 public:
 	Allpervading(Vector2f position);
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
-	void BonusDeactivate(Game& game, Paddle& paddle) override;
+	void Activate(Game& game) override;
+	void BonusDeactivate(Game& game) override;
 	 ~Allpervading() override = default;
 };
 
@@ -101,8 +95,8 @@ private:
 	float delta_speed;
 public:
 	IncreaseBallSpeed(Vector2f position);
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
-	void BonusDeactivate(Game& game, Paddle& paddle) override;
+	void Activate(Game& game) override;
+	void BonusDeactivate(Game& game) override;
 	 ~IncreaseBallSpeed() override = default;
 };
 class RandomizeAngle : public Bonus
@@ -111,7 +105,7 @@ private:
 	float rand_angle;
 public:
 	RandomizeAngle(Vector2f position);
-	void Activate(Game& game, Paddle& paddle, Ball& ball) override;
+	void Activate(Game& game) override;
 
 	 ~RandomizeAngle() override = default;
 };
@@ -121,10 +115,10 @@ class BottomAsPaddle : public Bonus
 private:
 public:
 	BottomAsPaddle(Vector2f position);
-	void Activate(Game& game, Paddle& paddle,Ball& ball) override;
-	void BonusDeactivate(Game& game, Paddle& paddle) override;
+	void Activate(Game& game) override;
+	
 	 ~BottomAsPaddle() override = default;
 };
 
-void createbonus(Vector2f position, std::vector<Bonus*>& BonusList/*, int32_t* scores, Paddle* paddle*/);
+void createbonus(Vector2f position, std::vector<Bonus*>& BonusList);
 #endif

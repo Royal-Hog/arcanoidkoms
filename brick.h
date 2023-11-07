@@ -2,7 +2,6 @@
 #define BRICK_H
 #include "entity.h"
 #include <random>
-class Bonus;
 extern float BRICKS_GAP;
 extern int32_t ROWS;
 extern int32_t BRICKS_IN_ROW;
@@ -10,7 +9,7 @@ extern int32_t BRICKS_IN_ROW;
 class Brick : public Entity
 {
 public:
-	void setHP(int32_t hp);
+	
 	int32_t getHP();
 	void decreaseHP();
 	 Brick();
@@ -21,7 +20,6 @@ public:
 	int32_t hp;
 private:
 	
-	//int32_t* scores;
 };
 
 class Unbreakable :public Brick
@@ -41,14 +39,6 @@ public:
 };
 
 
-/*class BonusContainer : public Brick{
-public:
-	BonusContainer(Vector2f position, std::vector<Bonus*>& Bonuslist);
-	void OnHit(int32_t* scores) override;
-private:
-	std::vector<Bonus*>* BonusListt;
-};*/
 std::vector<Brick*> InitBricksList();
 
-void DrawBricks(RenderWindow& window, std::vector<Brick*>& BricksList);
 #endif

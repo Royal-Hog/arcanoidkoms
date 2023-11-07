@@ -39,62 +39,59 @@ void Bonus::bonusMoving(float elapsed_time)
 	
 }
 
-void Bonus::updateByTime(Game& game, Ball& ball, Paddle& paddle, std::vector<Bonus*>& BonusList)
+void Bonus::updateByTime(Game& game)
 {
 	float elapsed_time = this->bonus_clock.getElapsedTime().asSeconds();
 	if (elapsed_time >= 15.f)
 	{
-		this->BonusDeactivate(game, paddle);
+		
+		this->BonusDeactivate(game);
 		this->setStatus(false);
-		BonusList.erase(BonusList.begin());
+		delete* game.BonusList.begin();
+		game.BonusList.erase(game.BonusList.begin());
 	}
 }
 
 
-void BonusDeactivate(Game& game, Paddle& paddle) {
-	
 
-}
-void UpdateBonusList(std::vector<Bonus*>& BonusList, float elapsed_time,
-	Paddle& paddle, Game& game, Ball& ball)
+void UpdateBonusList( float elapsed_time,
+	 Game& game)
 {
 
-	for (auto& bonus : BonusList)
+	for (auto& bonus : game.BonusList)
 	{
 		if (bonus->getStatus())
 		{
-			bonus->bonusCollidesPaddle(paddle);
+			bonus->bonusCollidesPaddle(game.paddle);
 			bonus->bonusMoving(elapsed_time);
 
-			bonus->updateByTime(game, ball, paddle, BonusList);
+			bonus->updateByTime(game);
 		}
 	}
 }
 
-void DrawBonuses(RenderWindow& window, std::vector<Bonus*>& BonusList)
-{
-	for (auto& bonus : BonusList) if (bonus->getStatus() && !bonus->getActivated()) window.draw(*bonus);
-}
+
 
 
 Extrascores::Extrascores(Vector2f position) {
 	this->extrascores = 50;
 	BONUS_TEXTURE_1.loadFromFile("images/bonus_extrascores.png");
-	//this->scores = scores;
+
 	this->setPosition(position);
 	this->setTexture(BONUS_TEXTURE_1);
 
 }
-/*void Extrascores::ActivateNew() {
-	*scores += extrascores;
+
+void Extrascores::Activate(Game& game)
+{
+	game.addScores(this->extrascores);
 }
-*/
 
 
 ReducePaddle::ReducePaddle(Vector2f position)
 {
 	this->NewSize = sf::Vector2f(0.5f, 1.f);
-//	this->paddle = paddle;
+
 	BONUS_TEXTURE_2.loadFromFile("images/bonus_redutio.png");
 
 	this->setPosition(position);
@@ -102,24 +99,17 @@ ReducePaddle::ReducePaddle(Vector2f position)
 }
 
 
-void Extrascores::Activate(Game& game, Paddle& paddle, Ball& ball)
-{
-	game.addScores(this->extrascores);
-}
 
-/*void ReducePaddle::ActivateNew()
-{
-	paddle->setScale(this->NewSize);
 
-}*/
-void ReducePaddle::Activate(Game& game, Paddle& paddle, Ball& ball)
+
+void ReducePaddle::Activate(Game& game)
 {
-		paddle.setScale(this->NewSize);
+	game.ChangePaddle(NewSize);
 
 }
 
-void ReducePaddle::BonusDeactivate(Game& game, Paddle& paddle) {
-	paddle.setScale(1.f,1.f);
+void ReducePaddle::BonusDeactivate(Game& game) {
+	game.ChangePaddle(Vector2f(1.f,1.f));
 }
 
 Extralife::Extralife(Vector2f position)
@@ -131,7 +121,7 @@ Extralife::Extralife(Vector2f position)
 	this->setPosition(position);
 	this->setTexture(BONUS_TEXTURE_3);
 }
-void Extralife::Activate(Game& game, Paddle& paddle, Ball& ball)
+void Extralife::Activate(Game& game)
 {
 	game.addLife();
 }
@@ -149,13 +139,13 @@ IncreasePaddle::IncreasePaddle(Vector2f position)
 	this->setTexture(BONUS_TEXTURE_4);
 }
 
-void IncreasePaddle::Activate(Game& game,Paddle& paddle, Ball& ball)
+void IncreasePaddle::Activate(Game& game)
 {
-		paddle.setScale(this->NewSize);
+	game.ChangePaddle(NewSize);
 }
 
-void IncreasePaddle::BonusDeactivate(Game& game, Paddle& paddle) {
-	paddle.setScale(1.f, 1.f);
+void IncreasePaddle::BonusDeactivate(Game& game) {
+	game.ChangePaddle(Vector2f(1.f, 1.f));
 }
 
 Allpervading::Allpervading(Vector2f position)
@@ -168,13 +158,13 @@ Allpervading::Allpervading(Vector2f position)
 	this->setTexture(BONUS_TEXTURE_5);
 }
 
-void Allpervading::Activate(Game& game,Paddle& paddle, Ball& ball)
+void Allpervading::Activate(Game& game)
 {
 		game.setAP(true);
 }
-void Allpervading::BonusDeactivate(Game& game, Paddle& paddle)
+void Allpervading::BonusDeactivate(Game& game)
 {
-	game.setAP(false);
+	game.setBAP(false);
 }
 
 IncreaseBallSpeed::IncreaseBallSpeed(Vector2f position)
@@ -187,17 +177,17 @@ IncreaseBallSpeed::IncreaseBallSpeed(Vector2f position)
 	this->setTexture(BONUS_TEXTURE_6);
 }
 
-void IncreaseBallSpeed::Activate(Game& game, Paddle& paddle, Ball& ball)
+void IncreaseBallSpeed::Activate(Game& game)
 {
 
-		this->setActivated(true);
-		BALL_SPEED += delta_speed;
+		
+	game.IncreaseSpeed(delta_speed);
 	
 }
 
-void IncreaseBallSpeed::BonusDeactivate(Game& game, Paddle& paddle)
+void IncreaseBallSpeed::BonusDeactivate(Game& game)
 {
-	BALL_SPEED -= delta_speed;
+	game.DecreaseSpeed(delta_speed);
 }
 
 RandomizeAngle::RandomizeAngle(Vector2f position)
@@ -209,9 +199,9 @@ RandomizeAngle::RandomizeAngle(Vector2f position)
 	this->setTexture(BONUS_TEXTURE_7);
 }
 
-void RandomizeAngle::Activate(Game& game,Paddle& paddle, Ball& ball)
+void RandomizeAngle::Activate(Game& game)
 {
-	ball.setAngle(rand_angle);
+	game.setRandAngle(rand_angle);
 }
 
 BottomAsPaddle::BottomAsPaddle(Vector2f position)
@@ -223,20 +213,17 @@ BottomAsPaddle::BottomAsPaddle(Vector2f position)
 	this->setTexture(BONUS_TEXTURE_8);
 }
 
-void BottomAsPaddle::Activate(Game& game,Paddle& paddle,  Ball& ball)
+void BottomAsPaddle::Activate(Game& game)
 {
-		game.setBAP(true);
-}
-void BottomAsPaddle::BonusDeactivate(Game& game, Paddle& paddle)
-{
-	game.setBAP(false);
+	game.setBAP(true);
 }
 
 
 
-void createbonus(Vector2f position, std::vector<Bonus*>& BonusList/*, int32_t* scores, Paddle* paddle*/) {
+
+void createbonus(Vector2f position, std::vector<Bonus*>& BonusList) {
 	//srand(time(0));
-	int32_t bonus_type = 2;// rand() % 8 + 1;
+	int32_t bonus_type  = rand() % 8 + 1;
 	switch (bonus_type) {
 	case 1: {
 		BonusList.push_back(new Extrascores(position));

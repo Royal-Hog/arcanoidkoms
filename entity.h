@@ -39,7 +39,7 @@ extern Vector2f BRICK_SIZE;
 class Entity : public Sprite
 {
 public:
-	bool Colliding(FloatRect& rect);
+
 	void setStatus(bool status);
 	void changeStatus();
 	bool getStatus();

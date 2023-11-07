@@ -19,6 +19,11 @@ Paddle::Paddle(Texture& texture)
 	this->setStatus(true);
 	this->setTexture(texture);
 }
+Paddle::Paddle()
+{
+
+	
+}
 
 void Paddle::updateDirection()
 {

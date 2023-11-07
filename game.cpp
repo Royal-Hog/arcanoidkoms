@@ -1,19 +1,9 @@
 #include "game.h"
-#include "ball.h"
 #include "bonus.h"
 #include <iostream>
 
 
 
-void Game::setBAP(bool BAP)
-{
-	this->bottom_as_paddle = BAP;
-}
-
-bool Game::getBAP()
-{
-	return this->bottom_as_paddle;
-}
 
 void Game::addLife()
 {
@@ -25,35 +15,25 @@ void Game::removeLife()
 	this->lifes--;
 }
 
-void Game::takeOffLife()
-{
-	if (!this->lifes == 0)
-		this->lifes--;
+void Game::IncreaseSpeed(float delta) {
+	BALL_SPEED += delta;
+}
+void Game::DecreaseSpeed(float delta) {
+	BALL_SPEED -= delta;
 }
 
-void Game::setAP(bool allpervading)
-{
-	this->allpervading = allpervading;
+void Game::ChangePaddle(Vector2f size) {
+	paddle.setScale(size);
 }
 
-bool Game::getAP()
-{
-	return this->allpervading;
+void Game::setAP(bool AP) {
+	ball.allpervading = AP;
 }
-
-int32_t Game::getScores()
-{
-	return this->scores;
+void Game::setBAP(bool BAP) {
+	ball.bottom_as_paddle = BAP;
 }
-
-int32_t Game::getLifes()
-{
-	return this->lifes;
-}
-
-int32_t Game::getLevelNum()
-{
-	return this->level;
+void Game::setRandAngle(float rand) {
+	ball.angle = rand;
 }
 
 void Game::addLevel()
@@ -76,11 +56,11 @@ void Game::UpdatePanel()
 	
 
 	std::string my_scores_panel = "Scores: ";
-	std::string my_scores_amount = std::to_string(getScores());
+	std::string my_scores_amount = std::to_string(scores);
 	std::string my_lifes_panel = "Lifes: ";
-	std::string my_lifes_amount = std::to_string(getLifes());
+	std::string my_lifes_amount = std::to_string(lifes);
 	std::string my_level_panel = "Level: ";
-	std::string my_level_num = std::to_string(getLevelNum());
+	std::string my_level_num = std::to_string(level);
 	Vector2f v1 = Vector2f(60, 650);
 	Vector2f v2 = Vector2f(130, 650);
 	Vector2f v3 = Vector2f(60, 725);
@@ -107,86 +87,51 @@ void Game::DrawText(RenderWindow& window)
 }
 
 
+
+void Game::DrawBricks(RenderWindow& window)
+{
+	for (Brick* brick : BricksList) if (brick->getStatus()) window.draw(*brick);
+}
 void Game::CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window)
 {
 	while (window.pollEvent(event))
 		if (event.type == sf::Event::Closed) window.close();
 }
-void BonusProcess(std::vector<Bonus*>& BonusList, Game& game, Paddle& paddle, Ball& ball)
+void Game::BonusProcess()
 {
 	for (auto bonus : BonusList)
 	{
 		if (bonus->getActivated())
 		{
-			//bonus->ActivateNew();
-			bonus->Activate(game,paddle, ball);
+			bonus->Activate(*this);
 			bonus->setActivated(false);
-			//запомнить указатель на этот бонус, удалить его из массива(errase) удалить запомненный указатель(delete) виртуальный диструктр внутри бонуса 
-			/*if (bonus.getBonusType() == BonusType::ALLPERVADING)
-			{
-				game.setAP(true);
-				bonus.setActivated(false);
-			}
 			
-			if (bonus.getBonusType() == BonusType::EXTRALIFE)
-			{
-				game.addLife();
-				bonus.setActivated(false);
-			}
-			if (bonus.getBonusType() == BonusType::EXTRASCORES)
-			{
-				game.addScores(50);
-				bonus.setActivated(false);
-			}
-			if (bonus.getBonusType() == BonusType::INCREASE_PADDLE)
-			{
-				paddle.setScale(Vector2f(2.f, 1.f));
-				bonus.setActivated(false);
-			}
-			if (bonus.getBonusType() == BonusType::REDUCE_PADDLE)
-			{
-				paddle.setScale(Vector2f(0.5f, 1.f));
-				bonus.setActivated(false);
-			}
-			if (bonus.getBonusType() == BonusType::BOTTOM_AS_PADDLE)
-			{
-				bonus.setActivated(false);
-				game.setBAP(true);
-			}
-			if (bonus.getBonusType() == BonusType::RANDOMIZE_ANGLE)
-			{
-				ball.setAngle(static_cast<float>((rand() % 360)) * 0.0175f);
-				bonus.setActivated(false);
-			}
-			if (bonus.getBonusType() == BonusType::INCREASE_BALL_SPEED)
-			{
-				bonus.setActivated(false);
-				BALL_SPEED += 250.f;
-
-			}*/
 		}
 	}
 }
 
-void Game::UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
-	std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList)
+void Game::UpdateScene()
 {
 	float elapsed_time = clock.getElapsedTime().asSeconds();
 	clock.restart();
 	paddle.updateDirection();
-	ball.updateBall(paddle, elapsed_time,
-		paddle.updatePaddle(elapsed_time), BricksList, BonusList, *this);
-	UpdateBonusList(BonusList, elapsed_time, paddle, *this, ball);
-	BonusProcess(BonusList, *this, paddle, ball);
+	ball.updateBall( elapsed_time, *this);
+	UpdateBonusList(elapsed_time, *this);
+	BonusProcess();
 }
-void Game::DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList)
+
+void Game::DrawBonuses(RenderWindow& window)
+{
+	for (auto& bonus : BonusList) if (bonus->getStatus() && !bonus->getActivated()) window.draw(*bonus);
+}
+void Game::DrawScene(sf::RenderWindow& window)
 {
 	window.clear();
 	window.draw(paddle);
 	window.draw(ball);
-	DrawBricks(window, BricksList);
+	DrawBricks(window);
 	DrawText(window);
-	if (getBAP())
+	if (ball.bottom_as_paddle)
 	{
 		sf::RectangleShape bottom_line;
 		bottom_line.setSize(Vector2f(WINDOW_WIDTH, 4.f));
@@ -194,15 +139,15 @@ void Game::DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::
 		bottom_line.setFillColor(Color::White);
 		window.draw(bottom_line);
 	}
-	DrawBonuses(window, BonusList);
+	DrawBonuses(window);
 	window.display();
 }
 
-bool Game::checkCompleteness(std::vector<Brick*>& BricksList)
+bool Game::checkCompleteness()
 {
 	bool level_complete = true;
 	for (Brick* brick : BricksList)
-		if (brick->getStatus() && !(brick->getHP() == INT32_MAX)) 
+		if (brick->getStatus() && (brick->getHP() >=0)) 
 			level_complete = false;
 	
 	if (level_complete) addLevel();
@@ -230,12 +175,13 @@ void Game::LoadTextures()
 
 
 Game::Game()
+
 {
+    //paddle = Paddle(PADDLE_TEXTURE);
 	this->level = 1;
 	this->scores = 0;
 	this->lifes = 2;
-	this->allpervading = false;
-	this->bottom_as_paddle = false;
+	
 }
 
 void Game::addScores(int amount)
@@ -257,17 +203,17 @@ void Game::LoadFont()
 	}
 }
 
-void Game::gameloop(RenderWindow& window,Clock clock,Paddle paddle, Ball ball, std::vector<Brick*> BricksList, std::vector<Bonus*> BonusList) {
+void Game::gameloop(RenderWindow& window) {
 	while (window.isOpen())
 	{
 		sf::Event event;
 		UpdatePanel();
 	
 		CheckForWindowClosed(event, window);
-		UpdateScene(clock, paddle, ball, BricksList, BonusList);
-		DrawScene(window, ball, paddle, BricksList, BonusList);
-		if (checkCompleteness(BricksList)) { ROWS++; BricksList = InitBricksList(); }
-		if (checkDefeat(getLifes())) window.close();
+		UpdateScene();
+		DrawScene(window);
+		if (checkCompleteness()) { ROWS++; BricksList = InitBricksList(); }
+		if (checkDefeat(lifes)) window.close();
 	}
 }
 
@@ -278,11 +224,12 @@ void Game::initGame()
 	RenderWindow window(sf::VideoMode(WINDOW_WIDTH , WINDOW_HEIGHT+300.f), "Arcanoid");
 	LoadTextures();
 	LoadFont();
-	Paddle paddle = Paddle(PADDLE_TEXTURE);
-	Ball ball = Ball(BALL_TEXTURE);
-	Clock clock;
-	std::vector<Bonus*> BonusList;
-	std::vector<Brick*> BricksList = InitBricksList();
-	//UpdatePanel(game);
-	gameloop(window,clock,paddle,ball, BricksList, BonusList);
+	paddle = Paddle(PADDLE_TEXTURE);
+	ball = Ball(BALL_TEXTURE);
+	 BricksList = InitBricksList();
+	gameloop(window);
+	for (auto bonus : BonusList) delete bonus;
+	for (auto brick : BricksList) delete brick;
+	BonusList.clear();
+	BricksList.clear();
 }

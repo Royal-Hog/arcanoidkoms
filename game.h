@@ -25,38 +25,47 @@ private:
     int32_t level;
     
     int32_t lifes;
-    bool allpervading;
-    bool bottom_as_paddle;
-public:
-    static Game* Play;
-    int32_t scores;
-    Game();
-     ~Game() = default;
-    void addScores(int amount);
-    void goNextLevel();
-    void setBAP(bool BAP);
-    bool getBAP();
-    void addLife();
-    void removeLife();
-    void takeOffLife();
-    void setAP(bool allpervading);
-    bool getAP();
-    int32_t getScores();
-    int32_t getLifes();
-    int32_t getLevelNum();
-    void addLevel();
-    void initGame();
+    
+
+    void BonusProcess();
+    void DrawScene(sf::RenderWindow& window);
+    void DrawBricks(RenderWindow& window);
+    void DrawBonuses(RenderWindow& window);
+
     void CheckForWindowClosed(sf::Event& event, sf::RenderWindow& window);
-    void DrawScene(sf::RenderWindow& window, Ball& ball, Paddle& paddle, std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList);
-    bool checkCompleteness(std::vector<Brick*>& BricksList);
-    void UpdateScene(sf::Clock& clock, Paddle& paddle, Ball& ball,
-        std::vector<Brick*>& BricksList, std::vector<Bonus*>& BonusList);
+    bool checkCompleteness();
+    void UpdateScene();
     void DrawText(RenderWindow& window);
     void UpdatePanel();
     void TextSetter(sf::Text& text, const sf::Font& font, const std::string& stroke, const sf::Vector2f& position);
     void LoadFont();
     void LoadTextures();
-    void gameloop(RenderWindow& window, Clock clock, Paddle paddle, Ball ball, std::vector<Brick*> BricksList, std::vector<Bonus*> BonusList);
+    void gameloop(RenderWindow& window);
+  
+public:
+
+    Paddle paddle;
+    Ball ball;
+    Clock clock;
+    std::vector<Brick*> BricksList;
+    std::vector<Bonus*> BonusList;
+    int32_t scores;
+    Game();
+     ~Game() = default;
+     void setAP(bool AP);
+     void setBAP(bool BAP);
+     void setRandAngle(float rangle);
+     void ChangePaddle(sf::Vector2f size);
+    void addScores(int amount);
+    void goNextLevel();
+    void addLife();
+    void removeLife();
+
+    void addLevel();
+    void initGame();
+    void IncreaseSpeed(float delta);
+    void DecreaseSpeed(float delta);
+    
 };
 
 
